@@ -46,7 +46,7 @@
     <main class="main" id="top" data-it="1">
 
         @yield('main-content')
-
+        {{-- @include('common.settings-panel') --}}
     </main>
 
     <script src="{{ Vitx::asset('vendors/popper/popper.min.js') }}"></script>

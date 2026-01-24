@@ -9,12 +9,12 @@
                         <span class="d-none d-sm-inline-block">| </span>
                         <br class="d-sm-none" />
                         2026 &copy;
-                        <a class="text-white opacity-85" href="#!">Tu Empresa o Proyecto</a>
+                        <a class="text-white opacity-85" href="#!">{{ env('APP_NAME') }}</a>
                     </p>
                 </div>
                 <div class="col-12 col-sm-auto text-center">
-                    <p class="mb-0 text-600 opacity-85">v1.0.0 | <span class="fas fa-shield-alt text-success"
-                            title="Conexión Segura"></span> SSL Encrypted</p>
+                    <p class="mb-0 text-600 opacity-85">{{ $appVersion }} | <span
+                            class="fas fa-shield-alt text-success" title="Conexión Segura"></span> SSL Encrypted</p>
                 </div>
             </div>
         </div>
