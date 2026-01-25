@@ -1,0 +1,38 @@
+APP_NAME="Medical Landing"
+APP_ENV=local
+APP_KEY=base64:NVaaq/Fzc7ANjjhI1t36lJUM3fJSMAjIRmEQ9ByoLsA=
+APP_DEBUG=true
+APP_URL=https://medical.test
+
+# --- BASE DE DATOS ---
+DB_CONNECTION=mysql
+DB_HOST=medical-mysql
+DB_PORT=3306
+DB_DATABASE=medical
+DB_USERNAME=root
+DB_PASSWORD=password
+
+# --- REDIS (Cambiado a PREDIS para que no explote) ---
+REDIS_CLIENT=predis
+REDIS_HOST=medical-redis
+REDIS_PASSWORD=null
+REDIS_PORT=6379
+
+# --- DRIVERS ---
+CACHE_STORE=redis
+SESSION_DRIVER=redis
+QUEUE_CONNECTION=redis
+
+# --- MAILHOG ---
+MAIL_MAILER=smtp
+MAIL_HOST=medical-mailhog
+MAIL_PORT=1025
+
+# --- MINIO ---
+FILESYSTEM_DISK=s3
+AWS_ACCESS_KEY_ID=minioadmin
+AWS_SECRET_ACCESS_KEY=minioadmin
+AWS_DEFAULT_REGION=us-east-1
+AWS_BUCKET=medical
+AWS_ENDPOINT=http://medical-minio:9000
+AWS_USE_PATH_STYLE_ENDPOINT=true

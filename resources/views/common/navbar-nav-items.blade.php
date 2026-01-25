@@ -38,14 +38,18 @@
             </li>
 
             <li class="nav-item">
-                <a class="nav-link" {{ route('landing.plans') }} href="#!">Planes</a>
+                <a class="nav-link" href=" {{ route('landing.plans') }}">Precios</a>
             </li>
 
             <li class="nav-item"><a class="nav-link" href="#!" data-bs-toggle="modal"
                     data-bs-target="#exampleModal">Blog</a></li>
 
-            <li class="nav-item"><a class="nav-link" href="#!" data-bs-toggle="modal"
-                    data-bs-target="#exampleModal">Registrate</a></li>
+            <li class="nav-item"><a class="nav-link" href="#!">Registrate</a></li>
+
+            <li class="nav-item">
+                <a class="nav-link" href=" {{ route('landing.contact') }}">Contactanos</a>
+            </li>
+
         </ul>
     </div>
 </div>

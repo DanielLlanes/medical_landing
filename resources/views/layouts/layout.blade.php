@@ -9,8 +9,7 @@
     <!-- ===============================================-->
     <!--    Document Title-->
     <!-- ===============================================-->
-    <title>Falcon | Dashboard &amp; Web App Template</title>
-
+    <title>{{ env('APP_NAME') }} @yield('title')</title>
     <!-- ===============================================-->
     <!--    Favicons-->
     <!-- ===============================================-->
@@ -46,7 +45,7 @@
     <main class="main" id="top" data-it="1">
 
         @yield('main-content')
-        {{-- @include('common.settings-panel') --}}
+        @include('common.register-modal')
     </main>
 
     <script src="{{ Vitx::asset('vendors/popper/popper.min.js') }}"></script>
@@ -59,6 +58,35 @@
     <script src="{{ Vitx::asset('vendors/lodash/lodash.min.js') }}"></script>
     <script src="{{ Vitx::asset('vendors/list.js/list.min.js') }}"></script>
     <script src="{{ Vitx::asset('assets/js/theme.js') }}"></script>
+    <script src="{{ Vitx::asset('assets/js/sweet-alert.js') }}"></script>
+    @yield('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const registerModal = document.getElementById('register-modal');
+
+            // 1. Capturar datos del botón de precio
+            registerModal.addEventListener('show.bs.modal', function(event) {
+                const button = event.relatedTarget;
+                const planId = button.getAttribute('data-id');
+                const planName = button.getAttribute('data-name');
+
+                document.getElementById('modal-plan-id').value = planId;
+                document.getElementById('plan-name-display').textContent = planName;
+            });
+
+            // 2. Validación Local (Bootstrap magic)
+            const form = document.getElementById('form-register');
+            form.addEventListener('submit', function(event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+
+                // Esta clase es la que pone los inputs en rojo/verde con iconos
+                form.classList.add('was-validated');
+            }, false);
+        });
+    </script>
 </body>
 
 </html>

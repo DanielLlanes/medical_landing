@@ -1,3 +1,4 @@
+@section('title', ' | Precios de Planes Médicos')
 <section class="py-8 py-lg-10 dark__bg-1100 bg-dark">
     <div class="bg-holder overlay overlay-1"
         style="background-image:url({{ Vitx::asset('assets/img/generic/bg-1.jpg') }});background-position: center 20%;">
@@ -13,10 +14,12 @@
     </div>
 </section>
 
+
 <div class="container mt-n6 position-relative z-1">
     <div class="card mb-3 shadow-lg">
         <div class="card-body">
             <div class="row g-0">
+                {{-- Cabecera del Switch de Pago --}}
                 <div class="col-12 mb-4">
                     <div class="row justify-content-center justify-content-sm-between align-items-center">
                         <div class="col-sm-auto text-center">
@@ -31,53 +34,85 @@
                                 <label class="form-check-label align-top" for="planSwitch">Anual</label>
                             </div>
                         </div>
+                        @if ($errors->any())
+    <div class="alert alert-danger fs-11">
+        <strong>Error detectado:</strong>
+        <ul class="mb-0">
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@else
+    {{-- Si no hay errores de validación pero la sesión tiene un error genérico --}}
+    @if(session('error'))
+        <div class="alert alert-warning fs-11">
+            {{ session('error') }}
+        </div>
+    @endif
+@endif
                     </div>
                 </div>
 
-                <div class="col-lg-4 border-top border-bottom p-4 text-center">
-                    <h3 class="fw-normal my-0">Consultorio</h3>
-                    <p class="mt-3 fs-10">Para médicos independientes.</p>
-                    <h2 class="fw-medium my-4"> <sup class="fw-normal fs-7 me-1">$</sup>499<small
-                            class="fs-10 text-700">/ mes</small></h2>
-                    <a class="btn btn-outline-primary rounded-pill" href="#!">Probar Gratis</a>
-                    <hr class="my-4 opacity-10" />
-                    <ul class="list-unstyled text-start mx-auto" style="max-width: 200px;">
-                        <li class="py-1 fs-10"><span class="me-2 fas fa-check text-success"></span>Expediente NOM-024
-                        </li>
-                        <li class="py-1 fs-10"><span class="me-2 fas fa-check text-success"></span>Agenda y Citas</li>
-                    </ul>
-                </div>
+                {{-- Renderizado Dinámico de Planes --}}
+                @foreach ($plans as $plan)
+                    @php
+                        $isPro = $plan['slug'] === 'plan_clinica_pro_01';
+                        $isHospital = $plan['slug'] === 'plan_hospital_01';
+                    @endphp
 
-                <div class="col-lg-4 border-top border-bottom dark__bg-1000 p-4 text-center"
-                    style="background-color: rgba(44, 123, 229, 0.05);">
-                    <h3 class="fw-normal my-0 text-primary">Clínica Pro</h3>
-                    <p class="mt-3 fs-10">Interoperabilidad total HL7/FHIR.</p>
-                    <h2 class="fw-medium my-4 text-primary"> <sup class="fw-normal fs-7 me-1">$</sup>1,299<small
-                            class="fs-10 text-700">/ mes</small></h2>
-                    <a class="btn btn-primary rounded-pill" href="#!">Obtener Pro</a>
-                    <hr class="my-4 opacity-10" />
-                    <ul class="list-unstyled text-start mx-auto" style="max-width: 200px;">
-                        <li class="py-1 fs-10"><span class="me-2 fas fa-check text-success"></span>HL7 / FHIR Integrado
-                        </li>
-                        <li class="py-1 fs-10"><span class="me-2 fas fa-check text-success"></span>Facturación CFDI 4.0
-                        </li>
-                    </ul>
-                </div>
+                    <div class="col-lg-3 border-top border-bottom p-4 text-center {{ $isPro ? 'dark__bg-1000' : '' }}"
+                        @if ($isPro) style="background-color: rgba(44, 123, 229, 0.05);" @endif>
 
-                <div class="col-lg-4 border-top border-bottom p-4 text-center">
-                    <h3 class="fw-normal my-0">Hospital</h3>
-                    <p class="mt-3 fs-10">Seguridad avanzada.</p>
-                    <h2 class="fw-medium my-4"> <sup class="fw-normal fs-7 me-1">$</sup>2,499<small
-                            class="fs-10 text-700">/ mes</small></h2>
-                    <a class="btn btn-outline-primary rounded-pill" href="#!">Contactar</a>
-                    <hr class="my-4 opacity-10" />
-                    <ul class="list-unstyled text-start mx-auto" style="max-width: 200px;">
-                        <li class="py-1 fs-10"><span class="me-2 fas fa-check text-success"></span>Médicos Ilimitados
-                        </li>
-                        <li class="py-1 fs-10"><span class="me-2 fas fa-check text-success"></span>API de Integración
-                        </li>
-                    </ul>
-                </div>
+                        <h3 class="fw-normal my-0 {{ $isPro ? 'text-primary' : '' }}">{{ $plan['name'] }}</h3>
+
+                        <p class="mt-3 fs-10">
+                            @if ($plan['slug'] === 'plan_basico_01')
+                                Ideal para médicos que inician o consultorios pequeños.
+                            @elseif($plan['slug'] === 'plan_consultorio_01')
+                                Para médicos independientes con flujo completo.
+                            @elseif($isPro)
+                                Interoperabilidad total y facturación integrada.
+                            @else
+                                Para grupos médicos y hospitales medianos/grandes.
+                            @endif
+                        </p>
+
+                        <h2 class="fw-medium my-4 {{ $isPro ? 'text-primary' : '' }}">
+                            <sup class="fw-normal fs-7 me-1">$</sup>{{ number_format($plan['price'], 0) }}<small
+                                class="fs-10 text-700">/ mes</small>
+                        </h2>
+
+                        {{-- Botones Dinámicos --}}
+                        @if ($isHospital)
+                            <a class="btn btn-outline-primary rounded-pill" href="#!">Contactar Ventas</a>
+                        @else
+                            <button
+                                class="btn {{ $isPro ? 'btn-primary' : 'btn-outline-primary' }} rounded-pill open-register-modal"
+                                data-bs-toggle="modal" data-bs-target="#register-modal" data-id="{{ $plan['slug'] }}"
+                                data-name="{{ $plan['name'] }}">
+                                Probar Gratis 14 días
+                            </button>
+                        @endif
+
+                        <hr class="my-4 opacity-10" />
+
+                        {{-- Lista de Features desde el Array --}}
+                        <ul class="list-unstyled text-start mx-auto" style="max-width: 220px;">
+                            @foreach ($plan['features'] as $feature)
+                                <li class="py-1 fs-10">
+                                    <span class="me-2 fas fa-check text-success"></span>{{ $feature }}
+                                </li>
+                            @endforeach
+
+                            {{-- Feature de límite de usuarios (dinámica) --}}
+                            <li class="py-1 fs-10">
+                                <span class="me-2 fas fa-check text-success"></span>
+                                {{ $plan['limit_users'] >= 999 ? 'Médicos y Usuarios Ilimitados' : 'Hasta ' . $plan['limit_users'] . ($plan['limit_users'] == 1 ? ' Médico usuario' : ' Médicos') }}
+                            </li>
+                        </ul>
+                    </div>
+                @endforeach
             </div>
         </div>
     </div>
@@ -89,60 +124,84 @@
         <div class="card-body">
             <h6><a href="#!">¿Cómo se protegen los datos de salud de mis pacientes?<span
                         class="fas fa-caret-right ms-2"></span></a></h6>
-            <p class="fs-10 mb-0">La seguridad es nuestra prioridad. Cumplimos con la **NOM-024-SSA3-2012** para el
-                manejo de Expediente Clínico Electrónico. Los datos están cifrados con AES-256 y alojados en servidores
-                con certificación SSAE 16 / SOC1, garantizando que solo el personal autorizado acceda a la información
-                médica.</p>
+            <p class="fs-10 mb-0">La seguridad es nuestra prioridad. Cumplimos con la
+                <strong>NOM-024-SSA3-2012</strong> para el manejo de Expediente Clínico Electrónico. Los datos están
+                cifrados con AES-256 y alojados en servidores con certificación SSAE 16 / SOC1, garantizando que solo el
+                personal autorizado acceda a la información médica.
+            </p>
             <hr class="my-3" />
 
             <h6><a href="#!">¿Puedo compartir información con otros hospitales o laboratorios?<span
                         class="fas fa-caret-right ms-2"></span></a></h6>
-            <p class="fs-10 mb-0">Sí. El sistema está diseñado bajo estándares internacionales **HL7 y FHIR**, lo que
-                permite la interoperabilidad con otros sistemas de salud, facilitando el intercambio seguro de
-                expedientes, resultados de laboratorio y órdenes clínicas.</p>
+            <p class="fs-10 mb-0">Sí. El sistema está diseñado bajo estándares internacionales <strong>HL7 y
+                    FHIR</strong>, lo que permite la interoperabilidad con otros sistemas de salud, facilitando el
+                intercambio seguro de expedientes, resultados de laboratorio y órdenes clínicas.</p>
+            <hr class="my-3" />
+
+            <h6><a href="#!">¿El sistema cumple con la NOM-004-SSA3-2012 y la NOM-024 actualizada?<span
+                        class="fas fa-caret-right ms-2"></span></a></h6>
+            <p class="fs-10 mb-0">Sí, cumplimos estrictamente con la NOM-004 (manejo del expediente clínico) y la
+                NOM-024-SSA3 (intercambio de información). Nuestro expediente está certificado, con trazabilidad
+                completa de accesos y modificaciones.</p>
+            <hr class="my-3" />
+
+            <h6><a href="#!">¿Cómo funciona la facturación electrónica CFDI 4.0?<span
+                        class="fas fa-caret-right ms-2"></span></a></h6>
+            <p class="fs-10 mb-0">Integramos facturación CFDI 4.0 nativa. Genera XML y PDF timbrado automáticamente,
+                compatible con SAT, con complementos de pago. Envío directo por correo al paciente en un clic.</p>
             <hr class="my-3" />
 
             <h6><a href="#!">¿Qué métodos de pago aceptan para la suscripción?<span
                         class="fas fa-caret-right ms-2"></span></a></h6>
-            <p class="fs-10 mb-0">Aceptamos todas las tarjetas de crédito y débito principales. Para suscripciones
-                anuales, también podemos emitir una factura para pago vía transferencia bancaria o cheque. Las
-                suscripciones mensuales se gestionan exclusivamente mediante tarjeta de crédito.</p>
+            <p class="fs-10 mb-0">Aceptamos tarjetas de crédito/débito principales. Para anuales, factura para
+                transferencia o cheque. Mensuales solo con tarjeta.</p>
             <hr class="my-3" />
 
-            <h6><a href="#!">Necesito agregar más médicos a mi clínica, ¿cómo se factura?<span
+            <h6><a href="#!">Necesito agregar más médicos, ¿cómo se factura?<span
                         class="fas fa-caret-right ms-2"></span></a></h6>
-            <p class="fs-10 mb-0">Puedes aumentar el número de usuarios en cualquier momento desde tu panel de
-                administración. El sistema ajustará automáticamente tu suscripción de manera prorrateada para cubrir el
-                uso adicional hasta el final de tu ciclo de facturación actual.</p>
+            <p class="fs-10 mb-0">Aumenta usuarios desde el panel. Ajuste prorrateado automático hasta fin de ciclo.
+            </p>
             <hr class="my-3" />
 
-            <h6><a href="#!">¿Puedo importar mis expedientes actuales desde otro software?<span
+            <h6><a href="#!">¿Puedo importar expedientes de otro software?<span
                         class="fas fa-caret-right ms-2"></span></a></h6>
-            <p class="fs-10 mb-0">Contamos con herramientas de migración masiva. Si tu software actual permite exportar
-                en formatos estándar (CSV, XML o HL7), nuestro equipo de soporte técnico puede ayudarte a cargar tu base
-                de datos histórica sin costo adicional en planes Business y Hospital.</p>
+            <p class="fs-10 mb-0">Sí, con migración masiva (CSV, XML, HL7). Gratuita en planes Clínica Pro y Hospital.
+            </p>
             <hr class="my-3" />
 
             <h6><a href="#!">¿Los precios incluyen impuestos (IVA)?<span
                         class="fas fa-caret-right ms-2"></span></a></h6>
-            <p class="fs-10 mb-0">Los precios mostrados son netos. Al momento de realizar tu pago, se aplicará el IVA
-                correspondiente según la legislación fiscal vigente. Emitimos facturas CFDI 4.0 válidas para deducción
-                de impuestos en México.</p>
+            <p class="fs-10 mb-0">Precios netos. Se aplica IVA al pagar. Emitimos CFDI 4.0 deducible en México.</p>
             <hr class="my-3" />
 
-            <h6><a href="#!">¿Existe una versión para instalar en mi propio servidor?<span
+            <h6><a href="#!">¿Existe versión on-premise (instalación local)?<span
                         class="fas fa-caret-right ms-2"></span></a></h6>
-            <p class="fs-10 mb-0">Nuestra plataforma es 100% basada en la nube para garantizar actualizaciones
-                automáticas de seguridad y cumplimiento normativo. No ofrecemos versiones locales (on-premise), lo que
-                te ahorra costos de mantenimiento de servidores y hardware especializado.</p>
+            <p class="fs-10 mb-0">100% nube para actualizaciones automáticas y cumplimiento. No ofrecemos on-premise.
+            </p>
             <hr class="my-3" />
 
             <h6><a href="#!">¿Cuál es la política de reembolso?<span class="fas fa-caret-right ms-2"></span></a>
             </h6>
-            <p class="fs-10 mb-0">No ofrecemos reembolsos fuera de excepciones específicas. Si cancelas tu plan antes
-                del próximo ciclo de renovación, mantendrás el acceso a las funciones premium hasta el final del periodo
-                pagado. Las cancelaciones realizadas dentro de las primeras 48 horas tras el cargo inicial pueden ser
-                elegibles para un reembolso completo.</p>
+            <p class="fs-10 mb-0">No reembolsos generales. Cancelación antes de renovación mantiene acceso hasta fin de
+                periodo. Posible reembolso completo en primeras 48 horas tras cargo inicial.</p>
+            <hr class="my-3" />
+
+            <h6><a href="#!">¿Puedo personalizar recetas, indicaciones y certificados?<span
+                        class="fas fa-caret-right ms-2"></span></a></h6>
+            <p class="fs-10 mb-0">Sí, 100% personalizables con logo, membrete, firma digital y plantillas por
+                especialidad.</p>
+            <hr class="my-3" />
+
+            <h6><a href="#!">¿Qué pasa si se va la internet?<span class="fas fa-caret-right ms-2"></span></a>
+            </h6>
+            <p class="fs-10 mb-0">Modo offline limitado: registra consultas y notas que se sincronizan al reconectar.
+            </p>
+            <hr class="my-3" />
+
+            <h6><a href="#!">¿Incluye integración con WhatsApp para recordatorios?<span
+                        class="fas fa-caret-right ms-2"></span></a></h6>
+            <p class="fs-10 mb-0">Sí, WhatsApp Business API para recordatorios, confirmaciones y envío de recetas (con
+                consentimiento).</p>
         </div>
         <div class="card-footer bg-body-tertiary">
             <div class="row g-3 align-items-center">
@@ -151,7 +210,6 @@
                     <button class="btn btn-falcon-default btn-sm">Sí</button>
                     <button class="btn btn-falcon-default btn-sm ms-2">No</button>
                 </div>
-
                 <div class="col-12 col-lg-6 d-flex justify-content-center justify-content-lg-end align-items-center">
                     <h5 class="d-inline-block me-3 mb-0 fs-10">¿Necesitas más ayuda?</h5>
                     <button class="btn btn-falcon-default btn-sm">Chatea con nosotros</button>
