@@ -1,11 +1,11 @@
-<div class="container"><a class="navbar-brand" href="../index.html"><span
+<div class="container"><a class="navbar-brand" href="{{ route('landing.index') }}"><span
             class="text-white dark__text-white">{{ env('APP_NAME') }}</span></a>
     <button class="navbar-toggler collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#navbarStandard"
         aria-controls="navbarStandard" aria-expanded="false" aria-label="Toggle navigation"><span
             class="navbar-toggler-icon"></span></button>
     <div class="collapse navbar-collapse scrollbar" id="navbarStandard">
         <ul class="navbar-nav ms-auto">
-            <li class="nav-item d-flex align-items-center me-2">
+            <li class="nav-item d-flex align-items-center me-2"> 
                 <div class="dropdown theme-control-dropdown landing-drop"><a
                         class="nav-link d-flex align-items-center dropdown-toggle fa-icon-wait pe-1" href="#"
                         role="button" id="themeSwitchDropdown" data-bs-toggle="dropdown" aria-haspopup="true"
