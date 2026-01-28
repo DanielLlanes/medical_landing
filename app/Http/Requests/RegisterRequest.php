@@ -13,9 +13,10 @@ class RegisterRequest extends FormRequest
        return [
             'name'     => 'required|string|min:3',
             'email'    => 'required|email',
-            'company'  => 'required|string|min:3', // Quitamos la regex restrictiva aquí
+            'company'  => 'required|string|min:3',
             'password' => 'required|confirmed|min:8',
-            'plan_id'  => 'required'
+            'plan_id'  => 'required',
+            'billing_period' => ['required', 'string', 'in:monthly,yearly'],
         ];
     }
 

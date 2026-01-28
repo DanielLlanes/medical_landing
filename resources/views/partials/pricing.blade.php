@@ -23,81 +23,73 @@
                 <div class="col-12 mb-4">
                     <div class="row justify-content-center justify-content-sm-between align-items-center">
                         <div class="col-sm-auto text-center">
-                            <h5 class="d-inline-block mb-0">Pago Anual</h5>
-                            <span class="badge badge-subtle-success rounded-pill ms-2">Ahorra 25%</span>
+                            <h5 class="d-inline-block mb-0">Planes Médicos</h5>
+                            <span class="badge badge-subtle-success rounded-pill ms-2">Ahorro en pago anual</span>
                         </div>
                         <div class="col-sm-auto d-flex justify-content-center mt-2 mt-sm-0">
                             <label class="form-check-label me-2" for="planSwitch">Mensual</label>
                             <div class="form-check form-switch mb-0">
-                                <input class="form-check-input falcon-dual-switch" id="planSwitch" type="checkbox"
-                                    checked="checked" />
+                                <input class="form-check-input falcon-dual-switch" id="planSwitch" type="checkbox" />
                                 <label class="form-check-label align-top" for="planSwitch">Anual</label>
                             </div>
                         </div>
-                        @if ($errors->any())
-    <div class="alert alert-danger fs-11">
-        <strong>Error detectado:</strong>
-        <ul class="mb-0">
-            @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
-@else
-    {{-- Si no hay errores de validación pero la sesión tiene un error genérico --}}
-    @if(session('error'))
-        <div class="alert alert-warning fs-11">
-            {{ session('error') }}
-        </div>
-    @endif
-@endif
                     </div>
                 </div>
 
                 {{-- Renderizado Dinámico de Planes --}}
                 @foreach ($plans as $plan)
                     @php
-                        $isPro = $plan['slug'] === 'plan_clinica_pro_01';
-                        $isHospital = $plan['slug'] === 'plan_hospital_01';
+                        $priceMonthly = (float) $plan['price'];
+                        $discount = (float) $plan['annual_discount'];
+                        $priceYearlyMonthly = $priceMonthly * (1 - $discount);
+                        $isRecommended = $plan['is_recommended'] ?? false;
+                        $slug = $plan['slug'];
                     @endphp
 
-                    <div class="col-lg-3 border-top border-bottom p-4 text-center {{ $isPro ? 'dark__bg-1000' : '' }}"
-                        @if ($isPro) style="background-color: rgba(44, 123, 229, 0.05);" @endif>
+                    {{-- Contenedor con clase plan-container y data-slug para el JS --}}
+                    <div class="col-lg-3 border-top border-bottom p-4 text-center plan-container {{ $isRecommended ? 'dark__bg-1000' : '' }}"
+                        data-slug="{{ $slug }}"
+                        @if ($isRecommended) style="background-color: rgba(44, 123, 229, 0.05);" @endif>
 
-                        <h3 class="fw-normal my-0 {{ $isPro ? 'text-primary' : '' }}">{{ $plan['name'] }}</h3>
+                        <h3 class="fw-normal my-0 {{ $isRecommended ? 'text-primary' : '' }}">{{ $plan['name'] }}</h3>
 
-                        <p class="mt-3 fs-10">
-                            @if ($plan['slug'] === 'plan_basico_01')
-                                Ideal para médicos que inician o consultorios pequeños.
-                            @elseif($plan['slug'] === 'plan_consultorio_01')
-                                Para médicos independientes con flujo completo.
-                            @elseif($isPro)
-                                Interoperabilidad total y facturación integrada.
-                            @else
-                                Para grupos médicos y hospitales medianos/grandes.
-                            @endif
+                        <p class="mt-3 fs-10 text-muted" style="min-height: 40px;">
+                            {{ $plan['description'] ?? 'Solución integral para tu práctica médica.' }}
                         </p>
 
-                        <h2 class="fw-medium my-4 {{ $isPro ? 'text-primary' : '' }}">
-                            <sup class="fw-normal fs-7 me-1">$</sup>{{ number_format($plan['price'], 0) }}<small
-                                class="fs-10 text-700">/ mes</small>
+                        <h2 class="fw-medium my-4 {{ $isRecommended ? 'text-primary' : '' }}">
+                            <sup class="fw-normal fs-7 me-1">$</sup>
+                            <span class="price-value" data-monthly="{{ number_format($priceMonthly, 0) }}"
+                                data-yearly="{{ number_format($priceYearlyMonthly, 0) }}">
+                                {{ number_format($priceMonthly, 0) }}
+                            </span>
+                            <small class="fs-10 text-700" id="period-text-{{ $slug }}">/ mes</small>
                         </h2>
 
-                        {{-- Botones Dinámicos --}}
-                        @if ($isHospital)
-                            <a class="btn btn-outline-primary rounded-pill" href="#!">Contactar Ventas</a>
+                        {{-- Badge de Ahorro Dinámico --}}
+                        <div style="min-height: 25px;">
+                            <span class="badge rounded-pill badge-subtle-success d-none"
+                                id="savings-{{ $slug }}">
+                                Ahorras ${{ number_format($priceMonthly - $priceYearlyMonthly, 0) }} / mes
+                            </span>
+                        </div>
+
+                        {{-- Botón Dinámico --}}
+                        @if ($slug === 'plan_hospital_01')
+                            <a class="btn btn-outline-primary rounded-pill mt-3"
+                                href="mailto:ventas@medical.test">Contactar Ventas</a>
                         @else
                             <button
-                                class="btn {{ $isPro ? 'btn-primary' : 'btn-outline-primary' }} rounded-pill open-register-modal"
-                                data-bs-toggle="modal" data-bs-target="#register-modal" data-id="{{ $plan['slug'] }}"
+                                class="btn {{ $isRecommended ? 'btn-primary' : 'btn-outline-primary' }} rounded-pill mt-3 open-register-modal"
+                                data-bs-toggle="modal" data-bs-target="#register-modal" data-id="{{ $slug }}"
                                 data-name="{{ $plan['name'] }}">
-                                Probar Gratis 14 días
+                                Probar Gratis {{ $plan['trial_days'] }} días
                             </button>
                         @endif
 
                         <hr class="my-4 opacity-10" />
 
-                        {{-- Lista de Features desde el Array --}}
+                        {{-- Lista de Features Dinámica --}}
                         <ul class="list-unstyled text-start mx-auto" style="max-width: 220px;">
                             @foreach ($plan['features'] as $feature)
                                 <li class="py-1 fs-10">
@@ -105,10 +97,14 @@
                                 </li>
                             @endforeach
 
-                            {{-- Feature de límite de usuarios (dinámica) --}}
+                            <li class="py-1 fs-10 fw-bold">
+                                <span class="me-2 fas fa-user-md text-primary"></span>
+                                {{ $plan['limit_users'] >= 999 ? 'Usuarios Ilimitados' : 'Hasta ' . $plan['limit_users'] . ' Médicos' }}
+                            </li>
+
                             <li class="py-1 fs-10">
-                                <span class="me-2 fas fa-check text-success"></span>
-                                {{ $plan['limit_users'] >= 999 ? 'Médicos y Usuarios Ilimitados' : 'Hasta ' . $plan['limit_users'] . ($plan['limit_users'] == 1 ? ' Médico usuario' : ' Médicos') }}
+                                <span class="me-2 fas fa-hdd text-info"></span>
+                                {{ $plan['limit_storage_gb'] }} GB de Almacenamiento
                             </li>
                         </ul>
                     </div>

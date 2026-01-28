@@ -10,22 +10,35 @@ class RegisterController extends Controller
 {
     public function store(RegisterRequest $request)
     {
-        // Obtenemos los datos validados + la confirmación que la API exige
+        $url = 'https://api.medical.test/landlord/tenants';
+
+        // Obtenemos los datos validados + la confirmación
         $data = array_merge($request->validated(), [
             'password_confirmation' => $request->password_confirmation
         ]);
 
-        $response = Http::withHeaders([
+        // 1. Preparamos el cliente HTTP
+        $client = Http::withHeaders([
             'Accept' => 'application/json',
-        ])
-        ->withoutVerifying()
-        ->post('https://api.medical.test/landlord/tenants', $data); // Enviamos $data, no validated()
+        ])->timeout(10); // Un poco más de tiempo porque crear DBs es pesado
 
-        // Para la prueba final, quitemos el dd y veamos el éxito
+        // 2. Condición de seguridad según el entorno
+        if (app()->environment(['local', 'testing'])) {
+            $client->withoutVerifying();
+        }
+
+        // 3. Ejecutamos la petición POST
+        $response = $client->post($url, $data);
+
         if ($response->successful()) {
+            // Limpiamos la cache de la landing si fuera necesario,
+            // aunque aquí no afecta a los planes, es buena práctica tenerlo en cuenta.
             return back()->with('registered', true);
         }
 
-        return back()->withErrors($response->json()['errors'] ?? ['error' => 'Error en API'])->withInput();
+        // 4. Manejo de errores de la API
+        $errors = $response->json()['errors'] ?? ['error' => 'No se pudo procesar el registro en el servidor médico.'];
+
+        return back()->withErrors($errors)->withInput();
     }
 }
