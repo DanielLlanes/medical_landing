@@ -10,41 +10,32 @@ class PriceController extends Controller
 {
     public function index()
     {
-        \Cache::forget('landing_plans');
-        $url = 'https://api.medical.test/v1/plans-list';
+        // 1. Intentamos obtener del cache
+        $data = \Cache::remember('landing_pricing_data', 60 * 60 * 24, function () {
+            $url = 'https://api.medical.test/v1/plans-list';
+            $client = \Http::timeout(5)->acceptJson();
 
-        // Cacheamos los planes por 24 horas para evitar peticiones HTTP innecesarias
-        $plans = \Cache::remember('landing_plans', 60 * 60 * 24, function () use ($url) {
-            try {
-                // 1. Creamos la instancia del cliente HTTP con un timeout
-                $client = Http::timeout(5)->acceptJson();
-
-                // 2. Condición de seguridad para entornos locales (.test)
-                if (app()->environment(['local', 'testing'])) {
-                    $client->withoutVerifying();
-                }
-
-                // 3. Ejecutamos la petición
-                $response = $client->get($url);
-
-                if ($response->successful()) {
-                    return $response->json()['data'] ?? [];
-                }
-
-                // Si la respuesta no es 200, logeamos el error y devolvemos vacío
-                \Log::warning('API Plans respondió con error', [
-                    'status' => $response->status(),
-                    'body' => $response->body()
-                ]);
-
-                return [];
-
-            } catch (\Throwable $e) {
-                \Log::error('Fallo crítico conexión API Plans: ' . $e->getMessage());
-                return [];
+            if (app()->environment(['local', 'testing'])) {
+                $client->withoutVerifying();
             }
+
+            $response = $client->get($url);
+
+            if ($response->successful()) {
+                // Extraemos la data limpia de la respuesta de tu API
+                return [
+                    'plans' => $response->json()['data']['plans'] ?? [],
+                    'faqs'  => $response->json()['data']['faqs'] ?? []
+                ];
+            }
+
+            return ['plans' => [], 'faqs' => []];
         });
 
-        return view('pricing.index', compact('plans'));
+        // 2. Mandamos las variables por separado para que Blade sea feliz
+        return view('pricing.index', [
+            'plans' => $data['plans'],
+            'faqs'  => $data['faqs']
+        ]);
     }
 }
