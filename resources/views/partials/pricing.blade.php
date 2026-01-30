@@ -120,12 +120,51 @@
             <h4 class="text-center mb-0">Preguntas Frecuentes</h4>
         </div>
         <div class="card-body">
-            @foreach ($faqs as $faq)
+            {{-- @foreach ($faqs as $faq)
                 <h6><a href="#!">{{ $faq['question'] }}<span class="fas fa-caret-right ms-2"></span></a></h6>
                 <p class="fs-10 mb-0">{{ $faq['answer'] }}
                 </p>
                 <hr class="my-3" />
-            @endforeach
+            @endforeach --}}
+            <div class="accordion rounded overflow-hidden" id="accordionFaq">
+                <div class="row">
+                    @foreach ($faqs as $k => $faq)
+                        {{-- Aquí aplicamos el 12 para móvil y 6 para escritorio --}}
+                        <div class="col-12 col-md-6">
+                            <div class="card shadow-none rounded-0 ">
+                                <div class="accordion-item border-0 border-0">
+                                    <div class="card-header p-0" id="faqAccordionHeading{{ $k }}">
+                                        <h6>
+                                            <a href="#!" class="text-decoration-none d-flex py-2 px-3"
+                                                data-bs-toggle="collapse"
+                                                data-bs-target="#collapseFaqAccordion{{ $k }}"
+                                                aria-expanded="false"
+                                                aria-controls="collapseFaqAccordion{{ $k }}">
+
+                                                <span class="fas fa-caret-right accordion-icon me-3 mt-1 text-primary"
+                                                    data-fa-transform="shrink-2"></span>
+
+                                                <span class="fw-medium font-sans-serif">{{ $faq['question'] }}</span>
+                                            </a>
+                                        </h6>
+                                    </div>
+                                    <div class="accordion-collapse collapse"
+                                        id="collapseFaqAccordion{{ $k }}"
+                                        aria-labelledby="faqAccordionHeading{{ $k }}" {{-- Nota: si quieres que se cierren otros al abrir uno, el data-parent debe ser el ID del contenedor .row --}}
+                                        data-bs-parent="#accordionFaq">
+                                        <div class="accordion-body p-0">
+                                            <div class="card-body pt-2">
+                                                <p class="ps-3 fs-10 mb-0">{{ $faq['answer'] }}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr class="my-3" />
+                        </div>
+                    @endforeach
+                </div>
+            </div>
         </div>
         <div class="card-footer bg-body-tertiary">
             <div class="row g-3 align-items-center">
