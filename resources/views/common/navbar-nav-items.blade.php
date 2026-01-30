@@ -5,7 +5,7 @@
             class="navbar-toggler-icon"></span></button>
     <div class="collapse navbar-collapse scrollbar" id="navbarStandard">
         <ul class="navbar-nav ms-auto">
-            <li class="nav-item d-flex align-items-center me-2"> 
+            <li class="nav-item d-flex align-items-center me-2">
                 <div class="dropdown theme-control-dropdown landing-drop"><a
                         class="nav-link d-flex align-items-center dropdown-toggle fa-icon-wait pe-1" href="#"
                         role="button" id="themeSwitchDropdown" data-bs-toggle="dropdown" aria-haspopup="true"
@@ -45,6 +45,10 @@
                     data-bs-target="#exampleModal">Blog</a></li>
 
             <li class="nav-item"><a class="nav-link" href="#!">Registrate</a></li>
+
+            <li class="nav-item">
+                <a class="nav-link" href=" {{ route('landing.faqs') }}">Faqs</a>
+            </li>
 
             <li class="nav-item">
                 <a class="nav-link" href=" {{ route('landing.contact') }}">Contactanos</a>

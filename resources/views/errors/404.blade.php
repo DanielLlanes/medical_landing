@@ -1,4 +1,4 @@
-@extends('layouts.auth-layout')
+{{-- @extends('layouts.auth-layout') --}}
 
 @section('content')
     <div class="card">

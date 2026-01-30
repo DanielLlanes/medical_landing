@@ -8,11 +8,17 @@ use Illuminate\Support\Facades\Log;
 
 class PriceController extends Controller
 {
+    public function __construct()
+    {
+        parent::__construct();
+    }
+
     public function index()
     {
+        \Cache::forget('landing_pricing_data');
         // 1. Intentamos obtener del cache
         $data = \Cache::remember('landing_pricing_data', 60 * 60 * 24, function () {
-            $url = 'https://api.medical.test/v1/plans-list';
+            $url = "{$this->baseUrl}/plans-list";
             $client = \Http::timeout(5)->acceptJson();
 
             if (app()->environment(['local', 'testing'])) {
