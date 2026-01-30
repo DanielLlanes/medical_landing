@@ -34,5 +34,8 @@ return [
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
     ],
+    'medical_api' => [
+        'url' => env('MEDICAL_API_URL', 'https://api.medical.test/v1'),
+    ],
 
 ];
